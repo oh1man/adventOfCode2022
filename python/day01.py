@@ -1,5 +1,8 @@
 
+import time
+
 if __name__ == '__main__':
+    startTime = time.time_ns()
     f = open("../input/day01.txt", "r")
     calories = f.readlines()
     f.close()
@@ -17,3 +20,6 @@ if __name__ == '__main__':
 
     print("Elves with largest calories: " + str(max(elvesInCalories)))
     print("Total calories of top three: " + str(sum(topThree)))
+
+    endTime = time.time_ns()
+    print("Elapsed time: " + str((endTime - startTime) / 1000000000) + " sec")
