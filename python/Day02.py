@@ -1,6 +1,8 @@
 import time
 from enum import Enum, IntEnum
 
+from python.utils.Stopwatch import runWithStopwatch
+
 
 class Hand(Enum):
     ROCK = 1
@@ -39,31 +41,29 @@ def play(opponent: Hand, hand: Hand):
     return hand.value
 
 
-def convertToHand(opponentHand: Hand, strategy: str) -> Hand:
+def convertToHand(opponent_hand: Hand, strategy: str) -> Hand:
     match strategy:
         case "X":
-            return opponentHand.getWinningHand().getWinningHand()
+            return opponent_hand.getWinningHand().getWinningHand()
         case "Y":
-            return opponentHand
+            return opponent_hand
         case "Z":
-            return opponentHand.getWinningHand()
+            return opponent_hand.getWinningHand()
+
+
+def day02():
+    file = open("../input/day02.txt", "r")
+    lines = file.readlines()
+    wrong_points = 0
+    correct_points = 0
+    for line in lines:
+        split = line.strip().split(" ")
+        opponent_hand = Hand.of(split[0])
+        wrong_points += play(opponent_hand, Hand.of(split[1]))
+        correct_points += play(opponent_hand, convertToHand(opponent_hand, split[1]))
+    print("Total wrong points: " + str(wrong_points))
+    print("Total correct points: " + str(correct_points))
 
 
 if __name__ == '__main__':
-    startTime = time.time_ns()
-
-    file = open("../input/day02.txt", "r")
-    lines = file.readlines()
-    wrongPoints = 0
-    correctPoints = 0
-    for line in lines:
-        split = line.strip().split(" ")
-        opponentHand = Hand.of(split[0])
-        wrongPoints += play(opponentHand, Hand.of(split[1]))
-        correctPoints += play(opponentHand, convertToHand(opponentHand, split[1]))
-
-    print("Total wrong points: " + str(wrongPoints))
-    print("Total correct points: " + str(correctPoints))
-
-    endTime = time.time_ns()
-    print("Elapsed time: " + str((endTime - startTime) / 1000000000) + " sec")
+    runWithStopwatch(day02)
