@@ -4,9 +4,11 @@
 package adventofcode2022
 
 import java.io.File
+import java.nio.file.Paths
 
-fun main() {
-    val startTime = System.nanoTime()
+fun day01() {
+    val path = Paths.get("").toAbsolutePath().toString()
+    println("Working Directory = $path")
 
     val file = File("./input/day01.txt")
     val calories = file.readLines()
@@ -27,7 +29,11 @@ fun main() {
 
     println("Elf with most calories: ${elvesInCalories[0]}")
     println("Total top three: $totalTopThree")
+}
 
+fun main() {
+    val startTime = System.nanoTime()
+    day01()
     val endTime = System.nanoTime()
     println("Elapsed time: ${(endTime - startTime).toDouble() / 1000000000} sec")
 }

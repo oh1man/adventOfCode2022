@@ -35,6 +35,12 @@ application {
     mainClass.set("adventofcode2022.Day01Kt")
 }
 
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes["Main-Class"] = "adventofcode2022.Day01Kt"
+    }
+}
+
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
