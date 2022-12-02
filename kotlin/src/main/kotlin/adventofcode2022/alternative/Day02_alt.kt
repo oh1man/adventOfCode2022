@@ -1,9 +1,8 @@
-package adventofcode2022
+package adventofcode2022.alternative
 
-import adventofcode2022.Hand.Companion.getWinningHand
 import java.io.File
 
-fun day02() {
+fun day02_alt() {
     val file = File("./input/day02.txt")
     val wrongHands = file.readLines().stream()
             .map {
@@ -31,12 +30,12 @@ private fun convertToCorrectHand(strategy: List<String>): Hand {
     val goForStrategy = strategy[1]
     val opponentHand = Hand.from(strategy[0])
     if (goForStrategy == "Z") {
-        return getWinningHand(opponentHand)
+        return Hand.getWinningHand(opponentHand)
     }
     if (goForStrategy == "Y") {
         return opponentHand
     }
-    return getWinningHand(getWinningHand(opponentHand))
+    return Hand.getWinningHand(Hand.getWinningHand(opponentHand))
 }
 
 private enum class Hand {
@@ -105,7 +104,7 @@ private fun getPointForHand(hand: Hand): Int {
 
 fun main() {
     val startTime = System.nanoTime()
-    day02()
+    day02_alt()
     val endTime = System.nanoTime()
     println("Elapsed time: ${(endTime - startTime).toDouble() / 1000000000} sec")
 }
