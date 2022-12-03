@@ -1,4 +1,4 @@
-from python.utils.Stopwatch import runWithStopwatch
+from utils.Stopwatch import runWithStopwatch
 
 input = open("../input/day03.txt", "r").readlines()
 

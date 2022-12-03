@@ -1,6 +1,7 @@
 package adventofcode2022
 
 import adventofcode2022.Hand.Companion.getWinningHand
+import adventofcode2022.util.runWithStopwatch
 import java.io.File
 
 fun day02() {
@@ -104,8 +105,5 @@ private fun getPointForHand(hand: Hand): Int {
 }
 
 fun main() {
-    val startTime = System.nanoTime()
-    day02()
-    val endTime = System.nanoTime()
-    println("Elapsed time: ${(endTime - startTime).toDouble() / 1000000000} sec")
+    runWithStopwatch { day02() }
 }

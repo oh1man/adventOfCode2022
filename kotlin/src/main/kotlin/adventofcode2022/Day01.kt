@@ -3,6 +3,7 @@
  */
 package adventofcode2022
 
+import adventofcode2022.util.runWithStopwatch
 import java.io.File
 import java.nio.file.Paths
 
@@ -32,8 +33,5 @@ fun day01() {
 }
 
 fun main() {
-    val startTime = System.nanoTime()
-    day01()
-    val endTime = System.nanoTime()
-    println("Elapsed time: ${(endTime - startTime).toDouble() / 1000000000} sec")
+    runWithStopwatch { day01() }
 }
