@@ -99,7 +99,7 @@ private fun getPointForHand(hand: Hand): Int {
         Hand.ROCK -> 1
         Hand.PAPER -> 2
         Hand.SCISSOR -> 3
-        else -> 0
+        else -> error("Something when wrong")
     }
 }
 

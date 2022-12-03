@@ -1,7 +1,4 @@
-
-import time
-
-from python.utils.Stopwatch import runWithStopwatch
+from utils.Stopwatch import runWithStopwatch
 
 
 def day01():
