@@ -3,9 +3,9 @@ package adventofcode2022
 import adventofcode2022.util.runWithStopwatch
 import java.io.File
 
-val input = File("./input/day03.txt").readLines()
+private val input = File("./input/day03.txt").readLines()
 
-fun part1() {
+private fun part1() {
     var priorityPoints = 0
     for (line in input) {
         val (firstComponent, secondComponent) = getCompartments(line)
@@ -21,7 +21,7 @@ fun part1() {
     println("Total priority: $priorityPoints")
 }
 
-fun part2() {
+private fun part2() {
     var priorityPoints = 0
     for (index in 0 until(input.size / 3)) {
         val group = input.slice((index * 3) until (index + 1) * 3)
@@ -42,7 +42,7 @@ fun part2() {
 }
 
 // NOTE: Extension function give good readability
-fun Char.toPriority(): Int {
+private fun Char.toPriority(): Int {
     return this.lowercaseChar().code - 'a'.code + 1 + 26 * (if (this.isUpperCase()) 1 else 0)
 }
 
