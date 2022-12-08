@@ -42,7 +42,7 @@ private fun getDirectionalScenicScore(treeLine: List<Int>, tree: Int, right: Boo
         tempTreeLine = treeLine.reversed()
     }
     var directionalScenicScore = 0L
-    for (adjTree in treeLine) {
+    for (adjTree in tempTreeLine) {
         directionalScenicScore++
         if (adjTree >= tree) {
             break
