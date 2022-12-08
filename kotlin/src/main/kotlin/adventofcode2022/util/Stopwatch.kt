@@ -7,5 +7,5 @@ fun runWithStopwatch(func: () -> Unit) {
     val startTime = System.nanoTime()
     func()
     val endTime = System.nanoTime()
-    println("Elapsed time: ${(endTime - startTime).toBigDecimal().divide(BigDecimal.valueOf(1000_000))} ms")
+    println("Elapsed time: ${(endTime - startTime).toBigDecimal().divide(BigDecimal.valueOf(1_000_000))} ms")
 }
