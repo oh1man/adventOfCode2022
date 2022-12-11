@@ -38,7 +38,7 @@ def part1():
 
 
 def part2():
-    text_input = open("../input/day11_test.txt").readlines()
+    text_input = open("../input/day11.txt").readlines()
     text_monkeys = [text_input[i + 1:i + 6] for i in range(0, len(text_input), 7)]
     monkeys = parse(text_monkeys)
     commonDiv = 1
@@ -83,7 +83,10 @@ class Monkey:
         return eval(self.operation)
 
     def bored(self, item, with_worry):
-        return floor(item / self.dividor)
+        if with_worry:
+            return floor(item / self.dividor)
+        else:
+            return item % self.dividor
 
     def throw(self, item):
         if item % self.dividing_factor == 0:
