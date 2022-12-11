@@ -1,9 +1,10 @@
-
 from utils.Stopwatch import runWithStopwatch
 
 
 def part1():
     text_input = open("../input/day11_test.txt").readlines()
+
+
     print("Test")
 
 
@@ -19,13 +20,21 @@ class Monkey:
         self.throw_if_true = throw_if_true
         self.throw_if_false = throw_if_false
         self.family = family
+        self.inspectingCounter = 0
 
     def execute(self):
         for item in self.items:
             new_item = self.inspect(item)
+            new_item = self.bored(new_item)
+            self.bored(new_item)
 
     def inspect(self, item):
-        return self.operation(item)
+        old = item
+        self.inspectingCounter += 1
+        return eval(self.operation)
+
+    def bored(self, item):
+        return round(item / 3)
 
     def throw(self, item):
         if item % self.dividing_factor == 0:
