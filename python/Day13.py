@@ -79,25 +79,32 @@ def parse_packets(text_input):
         packets.append(packet)
     return packets
 
+
 def part2():
-    text_input = open("../input/day13_test.txt", "r").readlines()
+    text_input = open("../input/day13.txt", "r").readlines()
     text_input.append("[[6]]")
     text_input.append("[[2]]")
     packets = parse_packets(text_input)
     sorted_packets = packets.copy()
-    # Now we need to sort this:
-    for i in range(0, len(packets)):
-        index = i
-        sorting = packets[i]
-        for j in range(0, len(packets)):
-            target = sorted_packets[j]
-            if ordered(sorting, target) < 0:
-                sorted_packets[index] = target
-                sorted_packets[j] = sorting
-                index = j
 
-    decoder_key = sorted_packets.index([[6]]) * sorted_packets.index([[2]])
+    # Now we need to sort this:
+    # TODO Learning: Insertion Sort!
+    for i in range(1, len(sorted_packets)):
+
+        key = sorted_packets[i]
+
+        # Move elements of arr[0..i-1], that are
+        # greater than key, to one position ahead
+        # of their current position
+        j = i - 1
+        while j >= 0 and ordered(sorted_packets[j], key) < 0:
+            sorted_packets[j + 1] = sorted_packets[j]
+            j -= 1
+        sorted_packets[j + 1] = key
+
+    decoder_key = (sorted_packets.index([[6]]) + 1) * (sorted_packets.index([[2]]) + 1)
     print("Part2: " + str(decoder_key))
+
 
 if __name__ == '__main__':
     runWithStopwatch(part1)
