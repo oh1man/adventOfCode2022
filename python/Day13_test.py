@@ -4,7 +4,7 @@ def part1():
     i = 0  # line number
     pair = 1
     total = 0
-    fileinput = open("../input/day13.txt", "r").readlines()
+    fileinput = open("../input/day13_test.txt", "r").readlines()
 
     # Return 1 if the lists are in the right oder,
     #       -1 if the lists are in the wrong order,

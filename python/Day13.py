@@ -1,29 +1,33 @@
 from utils.Stopwatch import runWithStopwatch
 
 
-def isCorrectOrder(left, right, withLeftRetry = False, withRightRetry = False):
-    for i in range(0, len(left)):
-        lefty = left[0] if withLeftRetry else left[i]
-        if not withRightRetry and i == len(right):
-            return False
-        righty = right[0] if withRightRetry else right[i]
-        if isinstance(lefty, int) and isinstance(righty, int):
-            if lefty > righty:
-                return False
-            elif lefty < righty:
-                return True
-            else:
-                continue
-        elif isinstance(lefty, list) and isinstance(righty, list):
-            if not isCorrectOrder(lefty, righty):
-                return False
-        elif isinstance(lefty, list) and isinstance(righty, int):
-            if not isCorrectOrder(lefty, [righty], withRightRetry=True):
-                return False
-        elif isinstance(lefty, int) and isinstance(righty, list):
-            if not isCorrectOrder([lefty], righty, withLeftRetry=True):
-                return False
-    return True
+# TODO LEARNING: Algos fit very well with short names, view it like mathematical functions more than system code.
+def ordered(L, R):
+    for i in range(0, len(L)):
+        if i >= len(R):
+            return -1
+        l = L[i]
+        r = R[i]
+        if type(l) is int and type(r) is int:
+            if l < r:
+                return 1
+            elif l > r:
+                return -1
+        elif type(l) is list and type(r) is list:
+            j = ordered(l, r)
+            if j != 0:
+                return j
+        elif type(l) is list:
+            j = ordered(l, [r])
+            if j != 0:
+                return j
+        elif type(r) is list:
+            j = ordered([l], r)
+            if j != 0:
+                return j
+    if len(L) == len(R):
+        return 0
+    return 1
 
 
 def parse(line):
@@ -59,16 +63,42 @@ def part1():
     pair = 0
     for i in range(0, len(text_input), 3):
         pair += 1
-        left = text_input[i]
-        left = eval(left.strip())
-        #left, _ = parse(left.strip())
-        right = text_input[i + 1]
-        right = eval(right.strip())
-        #right, _ = parse(right.strip())
-        if isCorrectOrder(left, right):
+        left, _ = parse(text_input[i].strip())
+        right, _ = parse(text_input[i + 1].strip())
+        if ordered(left, right) > 0:
             correctPairs.append(pair)
     print("Part1: " + str(sum(correctPairs)))
 
 
+def parse_packets(text_input):
+    packets = []
+    for line in text_input:
+        if line == "\n":
+            continue
+        packet, _ = parse(line.strip())
+        packets.append(packet)
+    return packets
+
+def part2():
+    text_input = open("../input/day13_test.txt", "r").readlines()
+    text_input.append("[[6]]")
+    text_input.append("[[2]]")
+    packets = parse_packets(text_input)
+    sorted_packets = packets.copy()
+    # Now we need to sort this:
+    for i in range(0, len(packets)):
+        index = i
+        sorting = packets[i]
+        for j in range(0, len(packets)):
+            target = sorted_packets[j]
+            if ordered(sorting, target) < 0:
+                sorted_packets[index] = target
+                sorted_packets[j] = sorting
+                index = j
+
+    decoder_key = sorted_packets.index([[6]]) * sorted_packets.index([[2]])
+    print("Part2: " + str(decoder_key))
+
 if __name__ == '__main__':
     runWithStopwatch(part1)
+    runWithStopwatch(part2)
