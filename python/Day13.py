@@ -10,6 +10,8 @@ def isCorrectOrder(left, right, withLeftRetry = False, withRightRetry = False):
         if isinstance(lefty, int) and isinstance(righty, int):
             if lefty > righty:
                 return False
+            elif lefty < righty:
+                return True
         elif isinstance(lefty, list) and isinstance(righty, list):
             if not isCorrectOrder(lefty, righty):
                 return False
