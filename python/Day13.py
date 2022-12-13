@@ -12,6 +12,8 @@ def isCorrectOrder(left, right, withLeftRetry = False, withRightRetry = False):
                 return False
             elif lefty < righty:
                 return True
+            else:
+                continue
         elif isinstance(lefty, list) and isinstance(righty, list):
             if not isCorrectOrder(lefty, righty):
                 return False
@@ -58,9 +60,11 @@ def part1():
     for i in range(0, len(text_input), 3):
         pair += 1
         left = text_input[i]
-        left, _ = parse(left.strip())
+        left = eval(left.strip())
+        #left, _ = parse(left.strip())
         right = text_input[i + 1]
-        right, _ = parse(right.strip())
+        right = eval(right.strip())
+        #right, _ = parse(right.strip())
         if isCorrectOrder(left, right):
             correctPairs.append(pair)
     print("Part1: " + str(sum(correctPairs)))
