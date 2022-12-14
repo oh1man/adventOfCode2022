@@ -34,10 +34,6 @@ private fun part1() {
     println("Part1: ${simulator.numberOfSand}")
 }
 
-private fun part2() {
-    TODO("Not yet implemented")
-}
-
 class Structure(input: String) {
     val coordinates: List<Pair<Int, Int>>
 
@@ -67,19 +63,25 @@ class Structure(input: String) {
 }
 
 class Simulator {
+    private var width: Int
     val scan: MutableList<MutableList<Char>>
     val start: Pair<Int, Int>
     var numberOfSand: Int = 0
     var run = true
     val norm: Int
-    constructor(scan: MutableList<MutableList<Char>>, start: Pair<Int, Int>, norm: Int) {
+    constructor(scan: MutableList<MutableList<Char>>, start: Pair<Int, Int>, norm: Int, width: Int = 0) {
         this.scan = scan
         this.start = start
         this.norm = norm
+        this.width = width
     }
 
     fun drop() {
         var p = start
+        if (scan[p.first][p.second - norm] == 'o') {
+            run = false
+            return
+        }
         var atRest = false
         while (!atRest) {
             lateinit var newP: Pair<Int, Int>
@@ -90,7 +92,7 @@ class Simulator {
                 break
             }
             if (newP == p) {
-                scan[p.first][p.second - norm] = 'o'
+                scan[p.first][width + p.second - norm] = 'o'
                 atRest = true
                 numberOfSand++
             } else {
@@ -124,4 +126,38 @@ class Simulator {
     fun isRunning(): Boolean {
         return run
     }
+}
+
+private fun part2() {
+    // Create scan of structures
+    val structures = File("./input/day14.txt").readLines().map { Structure(it) }
+    val coordinates = structures.flatMap { it.coordinates }
+    val sortedX = coordinates.map { it.first }.distinct().sortedDescending()
+    val sortedY = coordinates.map { it.second }.distinct().sorted()
+    val width = 200
+    val norm_x = sortedX.last()
+    val height = 2
+    val m = abs(sortedX.first() - sortedX.last()) + 1 + 2*width // Decide these
+    val n = sortedY.last() + 1 + height
+    val scan = MutableList(n) { MutableList(m) { '.' } }
+    for (structure in structures) {
+        for (p in structure.coordinates) {
+            scan[p.second][width + p.first - norm_x] = '#'
+        }
+    }
+
+    // Add rock floor
+    for (i in scan[0].indices) {
+        scan[n - 1][i] = '#'
+    }
+
+    scan.forEach { println(it.joinToString("")) }
+
+    // Simulate
+    val simulator = Simulator(scan, 0 to 500 + width, norm_x)
+    while (simulator.isRunning()) {
+        simulator.drop()
+    }
+    scan.forEach { println(it.joinToString("")) }
+    println("Part2: ${simulator.numberOfSand}")
 }
