@@ -8,10 +8,17 @@ def part1():
 
 
 class Sensor:
-    def __init__(self, position):
-        self.position: tuple = position
-        self.beacon: tuple = ()
-        self.scannedPositions: list[tuple] = []
+    position: tuple
+    beacon: tuple
+    scannedPositions: list[tuple]
+
+    def __init__(self, sensor_input):
+        self.position, self.beacon = self.parse(sensor_input)
+        self.scannedPositions = []
+
+    def parse(self, sensor_input):
+        # TODO: Do the parsing of one sensor input
+        return (), ()
 
 
 class Scan:
@@ -24,7 +31,10 @@ class Scan:
         self.execute()
 
     def parse(self, scan_input):
-        return [Sensor()]
+        temp = []
+        for line in scan_input:
+            temp.append(Sensor(line))
+        return temp
 
     def initialize(self) -> list[list[str]]:
         ys = list(map(lambda sensor: sensor.scannedPositions[0], self.sensors))
