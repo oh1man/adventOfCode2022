@@ -8,27 +8,37 @@ def part1():
 
 
 class Sensor:
-    position: tuple
-    beacon: tuple
-    scannedPositions: list[tuple]
-
     def __init__(self, sensor_input):
         self.position, self.beacon = self.parse(sensor_input)
-        self.scannedPositions = []
+        self.scanCorners: list[tuple] = self.calculateScannedCorners()
 
     def parse(self, sensor_input: str):
         parsed = sensor_input.strip().replace(",", "=").replace(":", "=").split("=")[1::2]
-        return (int(parsed[1]), int(parsed[0])), (int(parsed[3]), int(parsed[2]))
+        return (int(parsed[1]), int(parsed[0])), \
+               (int(parsed[3]), int(parsed[2]))
+
+    def calculateScannedCorners(self):
+        s = abs(self.position[0] - self.beacon[0]) + abs(self.position[1] - self.position[1])
+        return [
+            self.createPosition(self.position, s, 0),
+            self.createPosition(self.position, -s, 0),
+            self.createPosition(self.position, 0, s),
+            self.createPosition(self.position, 0, -s)
+        ]
+
+    def createPosition(self, center, dx, dy) -> tuple:
+        return center[0] + dx, \
+               center[1] + dy
 
 
 class Scan:
-    sensors: list[Sensor]
-    scan: list[list[str]]
-
     def __init__(self, scan_input):
         self.sensors = self.parse(scan_input)
-        self.scan = self.initialize()
-        self.execute()
+        self.y0 = None
+        self.x0 = None
+        self.y1 = None
+        self.x1 = None
+        self.initialize()
 
     def parse(self, scan_input):
         temp = []
@@ -36,16 +46,23 @@ class Scan:
             temp.append(Sensor(line))
         return temp
 
-    def initialize(self) -> list[list[str]]:
-        ys = list(map(lambda sensor: sensor.scannedPositions[0], self.sensors))
+    def initialize(self):
+        ys = []
+        for sensor in self.sensors:
+            for point in sensor.scanCorners:
+                ys.append(point[0])
+        ys = list(set(ys))
         ys.sort()
-        y0 = ys[0]  # TODO: Might need to create norm
-        y1 = ys[-1]
-        xs = list(map(lambda sensor: sensor.scannedPositions[1], self.sensors))
+        self.y0 = ys[0]  # TODO: Might need to create norm
+        self.y1 = ys[-1]
+        xs = []
+        for sensor in self.sensors:
+            for point in sensor.scanCorners:
+                ys.append(point[1])
+        xs = list(set(xs))
         xs.sort()
-        x0 = ys[0]
-        x1 = ys[-1]  # TODO: Might need to create norm
-        return [[]]
+        self.x0 = ys[0]
+        self.x1 = ys[-1]  # TODO: Might need to create norm
 
     def execute(self):
         for sensor in self.sensors:
