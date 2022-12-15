@@ -63,12 +63,11 @@ class Element:
         self.name = name
         self.parent = parent
 
-
 class Sensor2:
-    def __init__(self, name, parent):
+    def __int__(self, name):
         self.name = name
-        self.parent = parent
 
 
 if __name__ == '__main__':
     runWithStopwatch(part1)
+    Sensor2()
