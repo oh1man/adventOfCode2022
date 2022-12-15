@@ -3,22 +3,22 @@ from utils.Stopwatch import runWithStopwatch
 
 def part1():
     text_input = open("../input/day15.txt", "r").readlines()
-    scan = Scan.__int__(text_input)
+    scan = Scan(text_input)
     print("Part1: " + str(scan.get_number_of_not_containing(24)))
 
 
 class Sensor:
-    def __int__(self, position):
+    def __init__(self, position):
         self.position: tuple = position
         self.beacon: tuple = ()
         self.scannedPositions: list[tuple] = []
 
 
 class Scan:
-    scannedPositions: list[tuple]
+    sensors: list[Sensor]
     scan: list[list[str]]
 
-    def __int__(self, scan_input):
+    def __init__(self, scan_input):
         self.sensors = self.parse(scan_input)
         self.scan = self.initialize()
         self.execute()
@@ -58,16 +58,6 @@ class Scan:
         return number
 
 
-class Element:
-    def __init__(self, name, parent):
-        self.name = name
-        self.parent = parent
-
-class Sensor2:
-    def __int__(self, name):
-        self.name = name
-
-
 if __name__ == '__main__':
     runWithStopwatch(part1)
-    Sensor2()
+
