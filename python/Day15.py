@@ -27,7 +27,7 @@ class Sensor:
         self.beacon = (self.beacon[0] - norm, self.beacon[1] - norm)
 
     def calculateScannedCorners(self):
-        self.s = abs(self.position[0] - self.beacon[0]) + abs(self.position[1] - self.position[1])
+        self.s = abs(self.position[0] - self.beacon[0]) + abs(self.position[1] - self.beacon[1])
         self.top = self.createPosition(self.position, 0, -self.s)
         self.bot = self.createPosition(self.position, 0, self.s)
         if self.top[1] > self.bot[1]:
@@ -128,7 +128,7 @@ class Scan:
 
     def createXs(self, diff, sensor, xs):
         for el in list(range(sensor.position[0] - diff, sensor.position[0] + diff + 1)):
-            if self.x0 <= el <= self.x1:
+            #if self.x0 <= el <= self.x1:
                 xs.append(el)
 
 
