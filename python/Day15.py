@@ -16,9 +16,9 @@ class Sensor:
         self.position, self.beacon = self.parse(sensor_input)
         self.scannedPositions = []
 
-    def parse(self, sensor_input):
-        # TODO: Do the parsing of one sensor input
-        return (), ()
+    def parse(self, sensor_input: str):
+        parsed = sensor_input.strip().replace(",", "=").replace(":", "=").split("=")[1::2]
+        return (int(parsed[1]), int(parsed[0])), (int(parsed[3]), int(parsed[2]))
 
 
 class Scan:
