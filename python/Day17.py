@@ -2,11 +2,60 @@ from utils.Stopwatch import runWithStopwatch
 
 
 def part1():
-    jetstream = open("../input/day17_test.txt", "r").read().strip()
+    jetstream = open("../input/day17.txt", "r").read().strip()
     chamber = Chamber(7, jetstream, 2, 3)
     for i in range(2022):
         chamber.drop()
     print("Part1: " + str(chamber.getHeight()), end="\n")
+
+def part2():
+    jetstream = open("../input/day17.txt", "r").read().strip()
+    chamber = Chamber(7, jetstream, 2, 3)
+    numberOfRocks = 0
+    oldNumberOfRocks = 0
+    investigation = []
+    oldHeight = 0
+    oldDelta = 0
+
+    pairsOccurring = dict()
+    pairs = []
+    oldSize = 0
+
+    while True:
+        numberOfRocks += 1
+        chamber.drop()
+        """
+        pairs.append((chamber.j, chamber.rockGenerator.generatorIndex))
+        pairs = list(set(pairs))
+        if len(pairs) == 
+        print(len(pairs), end="\n")
+        o = (chamber.j, chamber.rockGenerator.generatorIndex)
+        pairs.append(o)
+        pairs = list(set(pairs))
+        if o in pairsOccurring.keys():
+            pairsOccurring[o] += 1
+        else:
+            pairsOccurring[o] = 1
+        """
+
+        if chamber.j == 123 and chamber.rockGenerator.generatorIndex == 0:
+            newHeight = chamber.getHeight()
+            delta = newHeight - oldHeight
+            deltaRocks = numberOfRocks - oldNumberOfRocks
+            pairs.append((numberOfRocks, deltaRocks, newHeight, delta))
+            if delta == oldDelta:
+                break
+            else:
+                oldHeight = newHeight
+                oldDelta = delta
+                oldNumberOfRocks = numberOfRocks
+
+    initialHeight = pairs[0][2]
+    rocksLeft = 1000000000000 - pairs[0][0]
+    factor = int(rocksLeft / pairs[1][1])
+    sim_height = pairs[1][3] * factor
+    totalHeight = initialHeight + sim_height
+    print("Part2: " + str(totalHeight), end="\n")
 
 # This is the main simulator class
 # Owns the physics for the dropping.
@@ -107,8 +156,9 @@ class Rock:
         return right
 
     def isLeftOf(self, wall, rocks):
-        right = list(map(lambda t: t[0], self.getCoordinatesToRight()))
-        return wall in right or self.isIn(right, rocks)
+        right = self.getCoordinatesToRight()
+        right_x = list(map(lambda t: t[0], right))
+        return wall in right_x or self.isIn(right, rocks)
 
     def moveLeft(self):
         """
@@ -127,8 +177,9 @@ class Rock:
         return left
 
     def isRightOf(self, wall, rocks):
-        left = list(map(lambda t: t[0], self.getCoordinatesToLeft()))
-        return wall in left or self.isIn(left, rocks)
+        left = self.getCoordinatesToLeft()
+        left_x = list(map(lambda t: t[0], left))
+        return wall in left_x or self.isIn(left, rocks)
 
     def isIn(self, points, rocks):
         for el in rocks:
@@ -182,4 +233,4 @@ class RockGenerator:
 
 
 if __name__ == '__main__':
-    runWithStopwatch(part1)
+    runWithStopwatch(part2)
