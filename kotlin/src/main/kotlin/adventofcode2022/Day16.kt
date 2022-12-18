@@ -26,66 +26,48 @@ private fun part1() {
             30
     )
 
-    print("Part1: ")
-    // For each unvisited calculation, calculate cost of the shortest path to each node.
-    // TODO: Dijkstra again for each node
-
+    println("Part1: ${optimalPressures[0].second.last()}")
 }
 
-private fun calculateOptimalPressure(
+fun calculateOptimalPressure(
         startNode: Valve,
         valveMapping: HashMap<String, Valve>,
         shortestPathMapping: HashMap<String, HashMap<String, Pair<Int, String>>>,
-        totalTime: Int
-): HashMap<String, Triple<Int, Int, MutableList<String>>> {
-    var paths = hashMapOf(startNode.key to Triple(0, 0, mutableListOf<String>())) // First: Cost, Second: Total Pressure, Third: Previous node
-    val visited = mutableListOf<Valve>()
-    val unvisited = valveMapping.values.toMutableList()
-    var currentNode = startNode
-    while (unvisited.isNotEmpty()) {
-        var timeSpent = 0
-        if (paths.contains(currentNode.key)) {
-            timeSpent = paths[currentNode.key]!!.first
-        }
-        val currentPath = paths[currentNode.key]?.third
-        val currentPressure = paths[currentNode.key]?.second
-        for (node in valveMapping.values) {
-            if (node == currentNode) {
-                continue
-            }
-            if (currentPath != null && currentPath.contains(node.key)) {
-                continue
-            }
-            val cp = currentPath!!.toMutableList()
-            cp.add(currentNode.key)
-            val shortestPath = shortestPathMapping[currentNode.key]!![node.key]!!.first
-            val newTimeSpent = timeSpent + shortestPath + 1
-            val timeLeft = totalTime - newTimeSpent
-            if (timeLeft < 0) {
-                continue
-            }
-            val totalPressure = paths[currentNode.key]!!.second + timeLeft * node.rate
-            if (paths.contains(node.key)) {
-                if (totalPressure > currentPressure!!) {
-                    paths[node.key] = Triple(newTimeSpent, totalPressure, cp)
-                }
-            } else {
-                paths[node.key] = Triple(newTimeSpent, totalPressure, cp)
-            }
-        }
-        val sortedPaths = paths.toList().sortedByDescending { (_, value) -> value.second }.toMap()
-        visited.add(currentNode)
-        unvisited.remove(currentNode)
-        unvisited.sortByDescending { if (paths.contains(it.key)) {
-            return@sortByDescending paths[it.key]!!.second
-        } else {
-            return@sortByDescending 0
-        }}
-        if (unvisited.isNotEmpty()) {
-            currentNode = unvisited.first()
-        }
+        totalTime: Int,
+        visited: List<String> = emptyList()
+): List<Pair<List<String>, List<Int>>> {
+    val valves = valveMapping.values
+
+    fun getAllPermutations(
+            currentValve: Valve,
+            currentPath: Pair<List<String>, List<Int>>,
+            minuteRemaining: Int
+    ): Set<Pair<List<String>, List<Int>>> {
+        // What valves are remaining to check
+        val remainingValves = valves
+                .filter { !visited.contains(it.key) }
+                .filter { !currentPath.first.contains(it.key) }
+                .filter { it.rate != 0 }
+                .filter { minuteRemaining - (shortestPathMapping[currentValve.key]!![it.key]!!.first + 1) >= 0 }
+
+        // Execute the calculation for all of them
+        return if (remainingValves.isNotEmpty()) {
+            remainingValves.flatMap {
+                getAllPermutations(
+                        it,
+                        Pair(
+                                currentPath.first.plus(it.key),
+                                currentPath.second.plus(currentPath.second.last() + (minuteRemaining - (shortestPathMapping[currentValve.key]!![it.key]!!.first + 1)) * it.rate)
+                        ),
+                        minuteRemaining - (shortestPathMapping[currentValve.key]!![it.key]!!.first + 1)
+                )
+            }.toSet()
+        } else setOf(currentPath)
     }
-    return paths
+
+    val allPermutations = getAllPermutations(startNode, Pair(listOf(startNode.key), listOf(0)), totalTime)
+    return allPermutations.sortedByDescending { it.second.last() }
+
 }
 
 private fun getShortestPathMapping(valveMapping: HashMap<String, Valve>): HashMap<String, HashMap<String, Pair<Int, String>>> {
@@ -164,5 +146,52 @@ class Valve(val key: String, val rate: Int) {
 }
 
 private fun part2() {
-    val input = File("./input/day16_test.txt").readLines()
+    val input = File("./input/day16.txt").readLines()
+
+    // Parse into all the nodes.
+    val valveMapping = parse(input)
+
+    // Calculate the shortest path to all nodes based on start node
+    val shortestPathMapping = getShortestPathMapping(valveMapping)
+
+    // Calculate the maximal pressure
+    val myPaths = calculateOptimalPressure(
+            valveMapping["AA"]!!,
+            valveMapping,
+            shortestPathMapping,
+            26
+    )
+
+    var bestValue = myPaths[0].second.last()
+    val size = myPaths.size
+    var iter = 0
+    myPaths.forEach {
+        println("Iteration $iter/$size -> BV: $bestValue")
+        bestValue = calculateCombinedOptimal(it, valveMapping, shortestPathMapping, bestValue)
+        iter++
+    }
+    println("Part2: $bestValue")
+}
+
+private fun calculateCombinedOptimal(
+        path: Pair<List<String>, List<Int>>,
+        valveMapping: HashMap<String, Valve>,
+        shortestPathMapping: HashMap<String, HashMap<String, Pair<Int, String>>>,
+        bestValue: Int
+): Int {
+    var bestValue1 = bestValue
+    for (i in path.first.indices) {
+        val v = calculateOptimalPressure(
+                valveMapping["AA"]!!,
+                valveMapping,
+                shortestPathMapping,
+                26,
+                path.first.slice(1..i)
+        )
+        val total = v[0].second.last() + path.second[i]
+        if (total > bestValue1) {
+            bestValue1 = total
+        }
+    }
+    return bestValue1
 }
