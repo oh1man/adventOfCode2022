@@ -12,49 +12,40 @@ def part2():
     jetstream = open("../input/day17.txt", "r").read().strip()
     chamber = Chamber(7, jetstream, 2, 3)
     numberOfRocks = 0
-    oldNumberOfRocks = 0
-    investigation = []
-    oldHeight = 0
-    oldDelta = 0
-
-    pairsOccurring = dict()
-    pairs = []
+    statistics = dict()
     oldSize = 0
+    totalNumberOfRocks = 1000000000000
 
     while True:
         numberOfRocks += 1
         chamber.drop()
-        """
-        pairs.append((chamber.j, chamber.rockGenerator.generatorIndex))
-        pairs = list(set(pairs))
-        if len(pairs) == 
-        print(len(pairs), end="\n")
-        o = (chamber.j, chamber.rockGenerator.generatorIndex)
-        pairs.append(o)
-        pairs = list(set(pairs))
-        if o in pairsOccurring.keys():
-            pairsOccurring[o] += 1
+
+        pair = (chamber.j, chamber.rockGenerator.generatorIndex)
+        if pair in statistics.keys():
+            pairStatistics = statistics[pair]
+            oldHeight = pairStatistics[len(pairStatistics) - 1][0]
+            height = chamber.getHeight()
+            deltaHeight = height - oldHeight
+            oldNumberOfRocks = pairStatistics[len(pairStatistics) - 1][2]
+            deltaNumberOfRocks = numberOfRocks - oldNumberOfRocks
+            pairStatistics.append((height, deltaHeight, numberOfRocks, deltaNumberOfRocks))
         else:
-            pairsOccurring[o] = 1
-        """
+            statistics[pair] = [(chamber.getHeight(), chamber.getHeight(), numberOfRocks, numberOfRocks)]
 
-        if chamber.j == 123 and chamber.rockGenerator.generatorIndex == 0:
-            newHeight = chamber.getHeight()
-            delta = newHeight - oldHeight
-            deltaRocks = numberOfRocks - oldNumberOfRocks
-            pairs.append((numberOfRocks, deltaRocks, newHeight, delta))
-            if delta == oldDelta:
-                break
-            else:
-                oldHeight = newHeight
-                oldDelta = delta
-                oldNumberOfRocks = numberOfRocks
+        pairStatistics = statistics[pair]
+        if len(statistics.keys()) == oldSize and len(pairStatistics) > 2:
+                if pairStatistics[len(statistics[pair]) - 1][3] == pairStatistics[len(statistics[pair]) - 2][3] and \
+                    pairStatistics[len(statistics[pair]) - 1][1] == pairStatistics[len(statistics[pair]) - 2][1]:
+                    rocksLeft = totalNumberOfRocks - pairStatistics[len(statistics[pair]) - 2][2]
+                    if rocksLeft % pairStatistics[len(statistics[pair]) - 2][3] == 0:
+                        initialHeight = pairStatistics[len(statistics[pair]) - 2][0]
+                        factor = int(rocksLeft / pairStatistics[len(statistics[pair]) - 2][3])
+                        sim_height = pairStatistics[len(statistics[pair]) - 2][1] * factor
+                        totalHeight = initialHeight + sim_height
+                        break
+        else:
+            oldSize = len(statistics.keys())
 
-    initialHeight = pairs[0][2]
-    rocksLeft = 1000000000000 - pairs[0][0]
-    factor = int(rocksLeft / pairs[1][1])
-    sim_height = pairs[1][3] * factor
-    totalHeight = initialHeight + sim_height
     print("Part2: " + str(totalHeight), end="\n")
 
 # This is the main simulator class
