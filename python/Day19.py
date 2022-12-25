@@ -67,8 +67,16 @@ class Resources:
         self.numberOfObsidian = self.numberOfObsidian - cost.numberOfObsidian
 
     def afford(self, cost: Cost):
-        return self.numberOfOres >= cost.numberOfOres and self.numberOfClay >= cost.numberOfClay and \
+        return \
+            self.numberOfOres >= cost.numberOfOres and \
+            self.numberOfClay >= cost.numberOfClay and \
             self.numberOfObsidian >= cost.numberOfObsidian
+
+    def hasRateOf(self, cost):
+        return \
+            self.numberOfOreRobots >= cost.numberOfOres and \
+            self.numberOfClayRobots >= cost.numberOfClay and \
+            self.numberOfObsidianRobots >= cost.numberOfObsidian
 
 
 class RobotFactory:
@@ -86,6 +94,28 @@ class RobotFactory:
 
     def affordGeodeRobot(self, resource: Resources):
         return resource.afford(self.blueprint.geodeRobotCost)
+
+    def hasOreRate(self, resource: Resources):
+        return \
+            resource.numberOfOreRobots >= self.blueprint.oreRobotCost.numberOfOres and \
+            resource.numberOfOreRobots >= self.blueprint.clayRobotCost.numberOfOres and \
+            resource.numberOfOreRobots >= self.blueprint.obsidianRobotCost.numberOfOres and \
+            resource.numberOfOreRobots >= self.blueprint.geodeRobotCost.numberOfOres
+
+    def hasClayRate(self, resource: Resources):
+        return \
+            resource.numberOfClayRobots >= self.blueprint.oreRobotCost.numberOfClay and \
+            resource.numberOfClayRobots >= self.blueprint.clayRobotCost.numberOfClay and \
+            resource.numberOfClayRobots >= self.blueprint.obsidianRobotCost.numberOfClay and \
+            resource.numberOfClayRobots >= self.blueprint.geodeRobotCost.numberOfClay
+
+    def hasObsidianRate(self, resource: Resources):
+        return \
+            resource.numberOfObsidianRobots >= self.blueprint.oreRobotCost.numberOfObsidian and \
+            resource.numberOfObsidianRobots >= self.blueprint.clayRobotCost.numberOfObsidian and \
+            resource.numberOfObsidianRobots >= self.blueprint.obsidianRobotCost.numberOfObsidian and \
+            resource.numberOfObsidianRobots >= self.blueprint.geodeRobotCost.numberOfObsidian
+
 
     def buildOreRobot(self, resource: Resources):
         tempResource = resource.copy()
@@ -122,25 +152,36 @@ def getOptimalNumberOfGeodes(factory: RobotFactory, resource: Resources, timeLef
 
     # Based on the resources check if we can build a robot or not.
     numberOfGeodes = []
-    if factory.affordOreRobot(resource):
+    if factory.affordOreRobot(resource) and not factory.hasOreRate(resource):
         numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildOreRobot(resource), timeLeft - 1))
 
-    if factory.affordClayRobot(resource):
+    if factory.affordClayRobot(resource) and not factory.hasClayRate(resource):
         numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildClayRobot(resource), timeLeft - 1))
 
-    if factory.affordObsidianRobot(resource):
+    if factory.affordObsidianRobot(resource) and not factory.hasObsidianRate(resource):
         numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildObsidianRobot(resource), timeLeft - 1))
 
     if factory.affordGeodeRobot(resource):
         numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildGeodeRobot(resource), timeLeft - 1))
 
-    if len(numberOfGeodes) == 0:
+    if not (affordToBuildAll(factory, resource)):
         resource.farm()
-        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, resource, timeLeft - 1))
+        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, resource.copy(), timeLeft - 1))
 
     numberOfGeodes.sort(reverse=True)
     return numberOfGeodes[0]
 
+
+def hasRateToBuildAll(resource):
+    return resource.numberOfOreRobots > 0 and resource.numberOfClayRobots > 0 and resource.numberOfObsidianRobots
+
+
+def affordToBuildAll(factory, resource):
+    return \
+        factory.affordOreRobot(resource) and \
+        factory.affordClayRobot(resource) and \
+        factory.affordObsidianRobot(resource) and \
+        factory.affordGeodeRobot(resource)
 
 def parse(input_text):
     blueprints = []
@@ -162,9 +203,10 @@ def part1():
 
     totalQualityLevel = 0
     for blueprint in blueprints:
-        qualityLevel = blueprint.id * getOptimalNumberOfGeodes(RobotFactory(blueprint), Resources(), 24)
-        totalQualityLevel = totalQualityLevel + qualityLevel
         print("Blueprint " + str(blueprint.id))
+        geodes = getOptimalNumberOfGeodes(RobotFactory(blueprint), Resources(), 24)
+        qualityLevel = blueprint.id * geodes
+        totalQualityLevel = totalQualityLevel + qualityLevel
 
     print("Part1: " + str(totalQualityLevel), end="\n")
 
