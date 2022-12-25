@@ -152,21 +152,21 @@ def getOptimalNumberOfGeodes(factory: RobotFactory, resource: Resources, timeLef
 
     # Based on the resources check if we can build a robot or not.
     numberOfGeodes = []
-    if factory.affordOreRobot(resource) and not factory.hasOreRate(resource):
-        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildOreRobot(resource), timeLeft - 1))
-
-    if factory.affordClayRobot(resource) and not factory.hasClayRate(resource):
-        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildClayRobot(resource), timeLeft - 1))
-
-    if factory.affordObsidianRobot(resource) and not factory.hasObsidianRate(resource):
-        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildObsidianRobot(resource), timeLeft - 1))
-
-    if factory.affordGeodeRobot(resource):
+    if factory.affordGeodeRobot(resource) and timeLeft >= 2:
         numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildGeodeRobot(resource), timeLeft - 1))
+    else:
+        if factory.affordOreRobot(resource) and not factory.hasOreRate(resource) and timeLeft >= 2:
+            numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildOreRobot(resource), timeLeft - 1))
 
-    if not (affordToBuildAll(factory, resource)):
-        resource.farm()
-        numberOfGeodes.append(getOptimalNumberOfGeodes(factory, resource.copy(), timeLeft - 1))
+        if factory.affordClayRobot(resource) and not factory.hasClayRate(resource) and timeLeft >= 2:
+            numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildClayRobot(resource), timeLeft - 1))
+
+        if factory.affordObsidianRobot(resource) and not factory.hasObsidianRate(resource) and timeLeft >= 2:
+            numberOfGeodes.append(getOptimalNumberOfGeodes(factory, factory.buildObsidianRobot(resource), timeLeft - 1))
+
+        if len(numberOfGeodes) == 0 or shouldWait(factory, resource):
+            resource.farm()
+            numberOfGeodes.append(getOptimalNumberOfGeodes(factory, resource.copy(), timeLeft - 1))
 
     numberOfGeodes.sort(reverse=True)
     return numberOfGeodes[0]
@@ -176,12 +176,51 @@ def hasRateToBuildAll(resource):
     return resource.numberOfOreRobots > 0 and resource.numberOfClayRobots > 0 and resource.numberOfObsidianRobots
 
 
-def affordToBuildAll(factory, resource):
-    return \
-        factory.affordOreRobot(resource) and \
-        factory.affordClayRobot(resource) and \
-        factory.affordObsidianRobot(resource) and \
-        factory.affordGeodeRobot(resource)
+def shouldWait(factory, resource):
+    if resource.numberOfOreRobots > 0:
+        return not hasHighestOre(factory, resource)
+
+    if resource.numberOfClayRobots > 0:
+        return not hasHighestClay(factory, resource)
+
+    if resource.numberOfObsidianRobots > 0:
+        return not hasHighestObsidian(factory, resource)
+
+    return False
+
+
+def hasHighestObsidian(factory, resource):
+    highest = [
+        factory.blueprint.oreRobotCost.numberOfObsidian,
+        factory.blueprint.clayRobotCost.numberOfObsidian,
+        factory.blueprint.obsidianRobotCost.numberOfObsidian,
+        factory.blueprint.geodeRobotCost.numberOfObsidian
+    ]
+    highest.sort(reverse=True)
+    return resource.numberOfObsidian >= highest[0]
+
+
+def hasHighestClay(factory, resource):
+    highest = [
+        factory.blueprint.oreRobotCost.numberOfClay,
+        factory.blueprint.clayRobotCost.numberOfClay,
+        factory.blueprint.obsidianRobotCost.numberOfClay,
+        factory.blueprint.geodeRobotCost.numberOfClay
+    ]
+    highest.sort(reverse=True)
+    return resource.numberOfClay >= highest[0]
+
+
+def hasHighestOre(factory, resource):
+    highest = [
+        factory.blueprint.oreRobotCost.numberOfOres,
+        factory.blueprint.clayRobotCost.numberOfOres,
+        factory.blueprint.obsidianRobotCost.numberOfOres,
+        factory.blueprint.geodeRobotCost.numberOfOres
+    ]
+    highest.sort(reverse=True)
+    return resource.numberOfOres >= highest[0]
+
 
 def parse(input_text):
     blueprints = []
@@ -198,22 +237,32 @@ def parse(input_text):
 
 
 def part1():
-    input_text = open("../input/day19_test.txt", "r").readlines()
+    input_text = open("../input/day19.txt", "r").readlines()
     blueprints = parse(input_text)
 
     totalQualityLevel = 0
     for blueprint in blueprints:
-        print("Blueprint " + str(blueprint.id))
         geodes = getOptimalNumberOfGeodes(RobotFactory(blueprint), Resources(), 24)
         qualityLevel = blueprint.id * geodes
         totalQualityLevel = totalQualityLevel + qualityLevel
+        print("Blueprint " + str(blueprint.id) + ": " + str(qualityLevel))
 
     print("Part1: " + str(totalQualityLevel), end="\n")
 
 
 def part2():
-    pass
+    input_text = open("../input/day19.txt", "r").readlines()
+    blueprints = parse(input_text)
+
+    answer = 1
+    for blueprint in blueprints[0:3]:
+        geodes = getOptimalNumberOfGeodes(RobotFactory(blueprint), Resources(), 32)
+        answer = answer * geodes
+        print("Blueprint " + str(blueprint.id) + ": " + str(geodes))
+
+    print("Part2: " + str(answer), end="\n")
 
 
 if __name__ == '__main__':
     runWithStopwatch(part1)
+    runWithStopwatch(part2)
