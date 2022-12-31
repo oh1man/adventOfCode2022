@@ -9,7 +9,7 @@ fun main() {
 }
 
 private fun part1() {
-    val (map, movement) = parse(File("./input/day22_test.txt").readLines())
+    val (map, movement) = parse(File("./input/day22.txt").readLines())
     val simulation = Simulation(map, map[0].indexOfFirst { it == '.' }, 0)
     for (move in movement) {
         simulation.executeMove(move)
@@ -53,15 +53,18 @@ private class Simulation(map: List<String>, x: Int, y: Int) {
         }
     }
 
-    fun getPassword(): String {
-        TODO("Not yet implemented")
+    fun getPassword(): Int {
+        val row = 1000 * (human.y + 1)
+        val column = 4 * (human.x + 1)
+        val facing = human.direction.ordinal
+        return row + column + facing
     }
 
 }
 
 class Human(val map: List<String>, var direction: Direction = Direction.RIGHT, var x: Int, var y: Int) {
-    fun turnLeft(): Direction {
-        return when (direction) {
+    fun turnLeft() {
+        direction = when (direction) {
             Direction.RIGHT -> Direction.UP
             Direction.UP -> Direction.LEFT
             Direction.LEFT -> Direction.DOWN
@@ -69,8 +72,8 @@ class Human(val map: List<String>, var direction: Direction = Direction.RIGHT, v
         }
     }
 
-    fun turnRight(): Direction {
-        return when (direction) {
+    fun turnRight() {
+        direction = when (direction) {
             Direction.RIGHT -> Direction.DOWN
             Direction.DOWN -> Direction.LEFT
             Direction.LEFT -> Direction.UP
@@ -126,11 +129,11 @@ class Human(val map: List<String>, var direction: Direction = Direction.RIGHT, v
         }
     }
 
-    enum class Direction {
-        RIGHT,
-        LEFT,
-        UP,
-        DOWN;
+    enum class Direction(i: Int) {
+        RIGHT(0),
+        LEFT(2),
+        UP(3),
+        DOWN(1);
 
         fun reversed(): Direction {
             return when (this) {
